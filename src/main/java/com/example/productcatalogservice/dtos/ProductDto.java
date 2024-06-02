@@ -1,6 +1,5 @@
 package com.example.productcatalogservice.dtos;
 
-import com.example.productcatalogservice.models.Category;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,5 +14,5 @@ public class ProductDto {
 
     private Double price;
 
-    private Category category;
+    private CategoryDto category;
 }
