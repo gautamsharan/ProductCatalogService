@@ -1,10 +1,12 @@
 package com.example.productcatalogservice.services;
 
 import com.example.productcatalogservice.dtos.FakeStoreProductDto;
+import com.example.productcatalogservice.dtos.ProductDto;
 import com.example.productcatalogservice.models.Category;
 import com.example.productcatalogservice.models.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -36,7 +38,18 @@ public class FakeStoreProductService implements IFakeStoreProductService {
     }
 
     @Override
-    public Product createProduct(Product product) {
+    public Product createProduct(ProductDto productDto) {
+        FakeStoreProductDto fakeStoreProductDto = getFakeStoreProductFromProductDto(productDto);
+        HttpEntity<FakeStoreProductDto> request = new HttpEntity<>(fakeStoreProductDto);
+        RestTemplate restTemplate = restTemplateBuilder.build();
+        ResponseEntity<FakeStoreProductDto> response = restTemplate.postForEntity("https://fakestoreapi.com/products", request, FakeStoreProductDto.class);
+        if (response.getStatusCode().is2xxSuccessful()) {
+            FakeStoreProductDto responseBody = response.getBody();
+            if (responseBody != null) {
+                return getProductFromFakeStoreProductDto(responseBody);
+            }
+        }
+
         return null;
     }
 
@@ -51,5 +64,15 @@ public class FakeStoreProductService implements IFakeStoreProductService {
         category.setName(fakeStoreProductDto.getCategory());
         product.setCategory(category);
         return product;
+    }
+
+    private FakeStoreProductDto getFakeStoreProductFromProductDto(ProductDto productDto) {
+        FakeStoreProductDto fakeStoreProductDto = new FakeStoreProductDto();
+        fakeStoreProductDto.setTitle(productDto.getName());
+        fakeStoreProductDto.setPrice(productDto.getPrice());
+        fakeStoreProductDto.setDescription(productDto.getDescription());
+        fakeStoreProductDto.setCategory(productDto.getCategory().getName());
+        fakeStoreProductDto.setImage(productDto.getImageUrl());
+        return fakeStoreProductDto;
     }
 }

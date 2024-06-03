@@ -9,10 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class ProductController {
@@ -36,9 +33,19 @@ public class ProductController {
         }
     }
 
-    @PostMapping
-    public ProductDto createProduct(ProductDto productDto) {
-        return null;
+    @PostMapping("/create-product")
+    public ResponseEntity<ProductDto> createProduct(@RequestBody ProductDto productDto) {
+        try {
+            Product product = iFakeStoreProductService.createProduct(productDto);
+            if (product == null) {
+                throw new RuntimeException("Could not create product");
+            }
+            ProductDto body = getProductDtoFromProduct(product);
+            return new ResponseEntity<>(body, HttpStatus.CREATED);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
+        }
+
     }
 
     private ProductDto getProductDtoFromProduct(Product product) {
