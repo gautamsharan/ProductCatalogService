@@ -67,7 +67,7 @@ public class ProductController {
         return new ResponseEntity<>(body, HttpStatus.OK);
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<ProductDto> deleteProduct(@PathVariable("id") Long productId) throws IllegalArgumentException {
         Product product = iFakeStoreProductService.deleteProduct(productId);
         if (product == null) {
