@@ -10,4 +10,8 @@ public interface IFakeStoreProductService {
     Product getProductById(Long id);
 
     Product createProduct(Product product);
+
+    Product updateProduct(Long productId, Product product);
+
+    Product deleteProduct(Long id);
 }

@@ -12,42 +12,69 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RestController
+@RequestMapping("/products")
 public class ProductController {
 
     @Autowired
     IFakeStoreProductService iFakeStoreProductService;
 
-    @GetMapping("/products/{id}")
-    public ResponseEntity<ProductDto> getProduct(@PathVariable("id") Long productId) {
-        try {
-            if (productId <= 0 || productId > 20) {
-                throw new IllegalArgumentException("Invalid product id");
-            }
-            Product product = iFakeStoreProductService.getProductById(productId);
-            ProductDto body = getProductDtoFromProduct(product);
-            MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
-            headers.add("source", "fake-store.api");
-            return new ResponseEntity<>(body, headers, HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    @GetMapping
+    public ResponseEntity<List<ProductDto>> getAllProducts() throws RuntimeException {
+        List<ProductDto> results = new ArrayList<>();
+        List<Product> products = iFakeStoreProductService.getProducts();
+        for (Product product : products) {
+            results.add(getProductDtoFromProduct(product));
         }
+        return new ResponseEntity<>(results, HttpStatus.OK);
     }
 
-    @PostMapping("/create-product")
-    public ResponseEntity<ProductDto> createProduct(@RequestBody ProductDto productDto) {
-        try {
-            Product product = getProductFromProductDto(productDto);
-            Product newProduct = iFakeStoreProductService.createProduct(product);
-            if (newProduct == null) {
-                throw new RuntimeException("Could not create product");
-            }
-            ProductDto body = getProductDtoFromProduct(newProduct);
-            return new ResponseEntity<>(body, HttpStatus.CREATED);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductDto> getProduct(@PathVariable("id") Long productId) throws IllegalArgumentException {
+        if (productId <= 0 || productId > 20) {
+            throw new IllegalArgumentException("Invalid product id");
         }
+        Product product = iFakeStoreProductService.getProductById(productId);
+        ProductDto body = getProductDtoFromProduct(product);
+        MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
+        headers.add("source", "fake-store.api");
+        return new ResponseEntity<>(body, headers, HttpStatus.OK);
+    }
 
+    @PostMapping
+    public ResponseEntity<ProductDto> createProduct(@RequestBody ProductDto productDto) throws RuntimeException {
+        Product product = getProductFromProductDto(productDto);
+        Product newProduct = iFakeStoreProductService.createProduct(product);
+        if (newProduct == null) {
+            throw new RuntimeException("Could not create product");
+        }
+        ProductDto body = getProductDtoFromProduct(newProduct);
+        return new ResponseEntity<>(body, HttpStatus.CREATED);
+
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ProductDto> updateProduct(@PathVariable("id") Long productId, @RequestBody ProductDto productDto) throws RuntimeException {
+        Product product = getProductFromProductDto(productDto);
+        Product newProduct = iFakeStoreProductService.updateProduct(productId, product);
+        if (newProduct == null) {
+            throw new RuntimeException("Could not update product");
+        }
+        ProductDto body = getProductDtoFromProduct(newProduct);
+        return new ResponseEntity<>(body, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ProductDto> deleteProduct(@PathVariable("id") Long productId) throws IllegalArgumentException {
+        Product product = iFakeStoreProductService.deleteProduct(productId);
+        if (product == null) {
+            throw new IllegalArgumentException("Invalid product id");
+        }
+        ProductDto body = getProductDtoFromProduct(product);
+        return new ResponseEntity<>(body, HttpStatus.OK);
     }
 
     private ProductDto getProductDtoFromProduct(Product product) {
