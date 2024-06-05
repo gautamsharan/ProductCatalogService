@@ -2,6 +2,7 @@ package com.example.productcatalogservice.controllers;
 
 import com.example.productcatalogservice.dtos.CategoryDto;
 import com.example.productcatalogservice.dtos.ProductDto;
+import com.example.productcatalogservice.models.Category;
 import com.example.productcatalogservice.models.Product;
 import com.example.productcatalogservice.services.IFakeStoreProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,10 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class ProductController {
@@ -36,9 +34,20 @@ public class ProductController {
         }
     }
 
-    @PostMapping
-    public ProductDto createProduct(ProductDto productDto) {
-        return null;
+    @PostMapping("/create-product")
+    public ResponseEntity<ProductDto> createProduct(@RequestBody ProductDto productDto) {
+        try {
+            Product product = getProductFromProductDto(productDto);
+            Product newProduct = iFakeStoreProductService.createProduct(product);
+            if (newProduct == null) {
+                throw new RuntimeException("Could not create product");
+            }
+            ProductDto body = getProductDtoFromProduct(newProduct);
+            return new ResponseEntity<>(body, HttpStatus.CREATED);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
+        }
+
     }
 
     private ProductDto getProductDtoFromProduct(Product product) {
@@ -52,5 +61,18 @@ public class ProductController {
         productDto.setCategory(categoryDto);
         productDto.setImageUrl(product.getImageUrl());
         return productDto;
+    }
+
+    private Product getProductFromProductDto(ProductDto productDto) {
+        Product product = new Product();
+        product.setName(productDto.getName());
+        product.setPrice(productDto.getPrice());
+        product.setDescription(productDto.getDescription());
+        product.setImageUrl(productDto.getImageUrl());
+        Category category = new Category();
+        category.setName(productDto.getCategory().getName());
+        category.setDescription(productDto.getCategory().getDescription());
+        product.setCategory(category);
+        return product;
     }
 }

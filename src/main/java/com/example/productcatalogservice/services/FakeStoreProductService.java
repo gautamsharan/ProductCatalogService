@@ -5,6 +5,7 @@ import com.example.productcatalogservice.models.Category;
 import com.example.productcatalogservice.models.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,17 @@ public class FakeStoreProductService implements IFakeStoreProductService {
 
     @Override
     public Product createProduct(Product product) {
+        FakeStoreProductDto fakeStoreProductDto = getFakeStoreProductFromProduct(product);
+        HttpEntity<FakeStoreProductDto> request = new HttpEntity<>(fakeStoreProductDto);
+        RestTemplate restTemplate = restTemplateBuilder.build();
+        ResponseEntity<FakeStoreProductDto> response = restTemplate.postForEntity("https://fakestoreapi.com/products", request, FakeStoreProductDto.class);
+        if (response.getStatusCode().is2xxSuccessful()) {
+            FakeStoreProductDto responseBody = response.getBody();
+            if (responseBody != null) {
+                return getProductFromFakeStoreProductDto(responseBody);
+            }
+        }
+
         return null;
     }
 
@@ -51,5 +63,15 @@ public class FakeStoreProductService implements IFakeStoreProductService {
         category.setName(fakeStoreProductDto.getCategory());
         product.setCategory(category);
         return product;
+    }
+
+    private FakeStoreProductDto getFakeStoreProductFromProduct(Product product) {
+        FakeStoreProductDto fakeStoreProductDto = new FakeStoreProductDto();
+        fakeStoreProductDto.setTitle(product.getName());
+        fakeStoreProductDto.setPrice(product.getPrice());
+        fakeStoreProductDto.setDescription(product.getDescription());
+        fakeStoreProductDto.setCategory(product.getCategory().getName());
+        fakeStoreProductDto.setImage(product.getImageUrl());
+        return fakeStoreProductDto;
     }
 }
