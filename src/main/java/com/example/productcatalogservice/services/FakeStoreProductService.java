@@ -1,7 +1,6 @@
 package com.example.productcatalogservice.services;
 
 import com.example.productcatalogservice.dtos.FakeStoreProductDto;
-import com.example.productcatalogservice.dtos.ProductDto;
 import com.example.productcatalogservice.models.Category;
 import com.example.productcatalogservice.models.Product;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,8 +37,8 @@ public class FakeStoreProductService implements IFakeStoreProductService {
     }
 
     @Override
-    public Product createProduct(ProductDto productDto) {
-        FakeStoreProductDto fakeStoreProductDto = getFakeStoreProductFromProductDto(productDto);
+    public Product createProduct(Product product) {
+        FakeStoreProductDto fakeStoreProductDto = getFakeStoreProductFromProduct(product);
         HttpEntity<FakeStoreProductDto> request = new HttpEntity<>(fakeStoreProductDto);
         RestTemplate restTemplate = restTemplateBuilder.build();
         ResponseEntity<FakeStoreProductDto> response = restTemplate.postForEntity("https://fakestoreapi.com/products", request, FakeStoreProductDto.class);
@@ -66,13 +65,13 @@ public class FakeStoreProductService implements IFakeStoreProductService {
         return product;
     }
 
-    private FakeStoreProductDto getFakeStoreProductFromProductDto(ProductDto productDto) {
+    private FakeStoreProductDto getFakeStoreProductFromProduct(Product product) {
         FakeStoreProductDto fakeStoreProductDto = new FakeStoreProductDto();
-        fakeStoreProductDto.setTitle(productDto.getName());
-        fakeStoreProductDto.setPrice(productDto.getPrice());
-        fakeStoreProductDto.setDescription(productDto.getDescription());
-        fakeStoreProductDto.setCategory(productDto.getCategory().getName());
-        fakeStoreProductDto.setImage(productDto.getImageUrl());
+        fakeStoreProductDto.setTitle(product.getName());
+        fakeStoreProductDto.setPrice(product.getPrice());
+        fakeStoreProductDto.setDescription(product.getDescription());
+        fakeStoreProductDto.setCategory(product.getCategory().getName());
+        fakeStoreProductDto.setImage(product.getImageUrl());
         return fakeStoreProductDto;
     }
 }
