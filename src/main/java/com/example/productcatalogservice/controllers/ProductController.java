@@ -4,7 +4,7 @@ import com.example.productcatalogservice.dtos.CategoryDto;
 import com.example.productcatalogservice.dtos.ProductDto;
 import com.example.productcatalogservice.models.Category;
 import com.example.productcatalogservice.models.Product;
-import com.example.productcatalogservice.services.IFakeStoreProductService;
+import com.example.productcatalogservice.services.IProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,12 +20,12 @@ import java.util.List;
 public class ProductController {
 
     @Autowired
-    IFakeStoreProductService iFakeStoreProductService;
+    IProductService iProductService;
 
     @GetMapping
     public ResponseEntity<List<ProductDto>> getAllProducts() throws RuntimeException {
         List<ProductDto> results = new ArrayList<>();
-        List<Product> products = iFakeStoreProductService.getProducts();
+        List<Product> products = iProductService.getProducts();
         for (Product product : products) {
             results.add(getProductDtoFromProduct(product));
         }
@@ -34,10 +34,10 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductDto> getProduct(@PathVariable("id") Long productId) throws IllegalArgumentException {
-        if (productId <= 0 || productId > 20) {
+        if (productId <= 0) {
             throw new IllegalArgumentException("Invalid product id");
         }
-        Product product = iFakeStoreProductService.getProductById(productId);
+        Product product = iProductService.getProductById(productId);
         ProductDto body = getProductDtoFromProduct(product);
         MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
         headers.add("source", "fake-store.api");
@@ -47,7 +47,7 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<ProductDto> createProduct(@RequestBody ProductDto productDto) throws RuntimeException {
         Product product = getProductFromProductDto(productDto);
-        Product newProduct = iFakeStoreProductService.createProduct(product);
+        Product newProduct = iProductService.createProduct(product);
         if (newProduct == null) {
             throw new RuntimeException("Could not create product");
         }
@@ -59,7 +59,7 @@ public class ProductController {
     @PutMapping("/{id}")
     public ResponseEntity<ProductDto> updateProduct(@PathVariable("id") Long productId, @RequestBody ProductDto productDto) throws RuntimeException {
         Product product = getProductFromProductDto(productDto);
-        Product newProduct = iFakeStoreProductService.updateProduct(productId, product);
+        Product newProduct = iProductService.updateProduct(productId, product);
         if (newProduct == null) {
             throw new RuntimeException("Could not update product");
         }
@@ -69,7 +69,7 @@ public class ProductController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ProductDto> deleteProduct(@PathVariable("id") Long productId) throws IllegalArgumentException {
-        Product product = iFakeStoreProductService.deleteProduct(productId);
+        Product product = iProductService.deleteProduct(productId);
         if (product == null) {
             throw new IllegalArgumentException("Invalid product id");
         }
@@ -79,27 +79,35 @@ public class ProductController {
 
     private ProductDto getProductDtoFromProduct(Product product) {
         ProductDto productDto = new ProductDto();
+        productDto.setId(product.getId());
         productDto.setName(product.getName());
         productDto.setPrice(product.getPrice());
         productDto.setDescription(product.getDescription());
-        CategoryDto categoryDto = new CategoryDto();
-        categoryDto.setName(product.getCategory().getName());
-        categoryDto.setDescription(product.getCategory().getDescription());
-        productDto.setCategory(categoryDto);
         productDto.setImageUrl(product.getImageUrl());
+        if (product.getCategory() != null) {
+            CategoryDto categoryDto = new CategoryDto();
+            categoryDto.setId(product.getCategory().getId());
+            categoryDto.setName(product.getCategory().getName());
+            categoryDto.setDescription(product.getCategory().getDescription());
+            productDto.setCategory(categoryDto);
+        }
         return productDto;
     }
 
     private Product getProductFromProductDto(ProductDto productDto) {
         Product product = new Product();
+        product.setId(productDto.getId());
         product.setName(productDto.getName());
         product.setPrice(productDto.getPrice());
         product.setDescription(productDto.getDescription());
         product.setImageUrl(productDto.getImageUrl());
-        Category category = new Category();
-        category.setName(productDto.getCategory().getName());
-        category.setDescription(productDto.getCategory().getDescription());
-        product.setCategory(category);
+        if (productDto.getCategory() != null) {
+            Category category = new Category();
+            category.setId(productDto.getCategory().getId());
+            category.setName(productDto.getCategory().getName());
+            category.setDescription(productDto.getCategory().getDescription());
+            product.setCategory(category);
+        }
         return product;
     }
 }

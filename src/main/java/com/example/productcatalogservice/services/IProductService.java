@@ -4,7 +4,7 @@ import com.example.productcatalogservice.models.Product;
 
 import java.util.List;
 
-public interface IFakeStoreProductService {
+public interface IProductService {
     List<Product> getProducts();
 
     Product getProductById(Long id);
