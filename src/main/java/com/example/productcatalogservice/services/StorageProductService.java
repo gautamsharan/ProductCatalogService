@@ -5,6 +5,7 @@ import com.example.productcatalogservice.repositories.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,7 +19,7 @@ public class StorageProductService implements  IProductService {
 
     @Override
     public List<Product> getProducts() {
-        return List.of();
+        return productRepository.findAll();
     }
 
     @Override
@@ -34,11 +35,15 @@ public class StorageProductService implements  IProductService {
 
     @Override
     public Product updateProduct(Long productId, Product product) {
+        if (productRepository.existsById(productId)) {
+            return productRepository.save(product);
+        }
         return null;
     }
 
     @Override
-    public Product deleteProduct(Long id) {
-        return null;
+    @Transactional
+    public void deleteProduct(Long id) {
+        productRepository.removeById(id);
     }
 }

@@ -38,6 +38,9 @@ public class ProductController {
             throw new IllegalArgumentException("Invalid product id");
         }
         Product product = iProductService.getProductById(productId);
+        if (product == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         ProductDto body = getProductDtoFromProduct(product);
         MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
         headers.add("source", "fake-store.api");
@@ -61,7 +64,7 @@ public class ProductController {
         Product product = getProductFromProductDto(productDto);
         Product newProduct = iProductService.updateProduct(productId, product);
         if (newProduct == null) {
-            throw new RuntimeException("Could not update product");
+            throw new RuntimeException("Product does not exists");
         }
         ProductDto body = getProductDtoFromProduct(newProduct);
         return new ResponseEntity<>(body, HttpStatus.OK);
@@ -69,11 +72,12 @@ public class ProductController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ProductDto> deleteProduct(@PathVariable("id") Long productId) throws IllegalArgumentException {
-        Product product = iProductService.deleteProduct(productId);
+        Product product = iProductService.getProductById(productId);
         if (product == null) {
             throw new IllegalArgumentException("Invalid product id");
         }
         ProductDto body = getProductDtoFromProduct(product);
+        iProductService.deleteProduct(productId);
         return new ResponseEntity<>(body, HttpStatus.OK);
     }
 

@@ -47,8 +47,8 @@ public class FakeStoreProductService implements IProductService {
     }
 
     @Override
-    public Product deleteProduct(Long productId) {
-        return getProductFromFakeStoreProductDto(fakeStoreClient.deleteProduct(productId));
+    public void deleteProduct(Long productId) {
+        getProductFromFakeStoreProductDto(fakeStoreClient.deleteProduct(productId));
     }
 
     private Product getProductFromFakeStoreProductDto(@Nullable FakeStoreProductDto fakeStoreProductDto) {

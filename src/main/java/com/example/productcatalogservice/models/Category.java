@@ -16,6 +16,6 @@ public class Category extends BaseModel{
 
     private String description;
 
-    @OneToMany(mappedBy = "category")
+    @OneToMany(mappedBy = "category", orphanRemoval = true)
     private List<Product> productList = new ArrayList<>();
 }
