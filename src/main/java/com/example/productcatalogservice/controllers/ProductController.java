@@ -71,14 +71,16 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ProductDto> deleteProduct(@PathVariable("id") Long productId) throws IllegalArgumentException {
-        Product product = iProductService.getProductById(productId);
-        if (product == null) {
+    public ResponseEntity<Void> deleteProduct(@PathVariable("id") Long productId) throws IllegalArgumentException {
+        if (productId <= 0) {
             throw new IllegalArgumentException("Invalid product id");
         }
-        ProductDto body = getProductDtoFromProduct(product);
+        Product product = iProductService.getProductById(productId);
+        if (product == null) {
+            throw new IllegalArgumentException("Product with id: " + productId + " does not exist.");
+        }
         iProductService.deleteProduct(productId);
-        return new ResponseEntity<>(body, HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     private ProductDto getProductDtoFromProduct(Product product) {

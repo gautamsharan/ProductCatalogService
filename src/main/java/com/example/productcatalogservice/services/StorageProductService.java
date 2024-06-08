@@ -44,6 +44,6 @@ public class StorageProductService implements  IProductService {
     @Override
     @Transactional
     public void deleteProduct(Long id) {
-        productRepository.removeById(id);
+        productRepository.deleteById(id);
     }
 }
