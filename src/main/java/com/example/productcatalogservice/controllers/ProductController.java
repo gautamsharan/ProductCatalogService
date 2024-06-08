@@ -43,7 +43,7 @@ public class ProductController {
         }
         ProductDto body = getProductDtoFromProduct(product);
         MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
-        headers.add("source", "fake-store.api");
+        headers.add("source", "mysql");
         return new ResponseEntity<>(body, headers, HttpStatus.OK);
     }
 
