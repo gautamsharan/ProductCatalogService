@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class FakeStoreProductService implements IFakeStoreProductService {
+public class FakeStoreProductService implements IProductService {
 
     @Autowired
     private RestTemplateBuilder restTemplateBuilder;
@@ -47,8 +47,8 @@ public class FakeStoreProductService implements IFakeStoreProductService {
     }
 
     @Override
-    public Product deleteProduct(Long productId) {
-        return getProductFromFakeStoreProductDto(fakeStoreClient.deleteProduct(productId));
+    public void deleteProduct(Long productId) {
+        getProductFromFakeStoreProductDto(fakeStoreClient.deleteProduct(productId));
     }
 
     private Product getProductFromFakeStoreProductDto(@Nullable FakeStoreProductDto fakeStoreProductDto) {

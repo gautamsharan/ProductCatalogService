@@ -4,7 +4,7 @@ import com.example.productcatalogservice.models.Product;
 
 import java.util.List;
 
-public interface IFakeStoreProductService {
+public interface IProductService {
     List<Product> getProducts();
 
     Product getProductById(Long id);
@@ -13,5 +13,5 @@ public interface IFakeStoreProductService {
 
     Product updateProduct(Long productId, Product product);
 
-    Product deleteProduct(Long id);
+    void deleteProduct(Long id);
 }
